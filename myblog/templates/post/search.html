@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}<title>Search for: {{ keyword }}</title>{% endblock %}
+
+{% block content %}
+{% if posts|length %}
+  <ul class="list-group">
+    <h3 class="alert alert-info">Result for: {{ keyword }}</h3>
+    {% for post in posts %}
+      <li class="list-group-item">
+        <h2><a href="{{ url_for('posts.detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+        <p class="text-muted">
+          Create at: {{ post.last_modified.strftime('%Y-%m-%d') }} by
+          <a href="#">{{ post.author.username }}</a>
+        </p>
+        <p>
+          {{ post.body }}
+        </p>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+<div class="alert alert-info">
+  <h3>We found no post for: {{ keyword }}</h3>
+</div>
+{% endif %}
+{% endblock %}

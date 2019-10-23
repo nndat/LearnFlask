@@ -36,8 +36,8 @@
           </li>
           {% endif %}
         </ul>
-        <form class="form-inline ml-auto">
-          <input type="text" class="form-control mr-sm-2" placeholder="Search">
+        <form class="form-inline ml-auto" action="{{ url_for('posts.search') }}", method="post">
+          <input type="text" class="form-control mr-sm-2" placeholder="Search" name="search" required>
           <button type="submit" class="btn btn-success">Search</button>
         </form>
       </nav>

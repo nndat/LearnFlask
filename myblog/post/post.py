@@ -94,3 +94,14 @@ def delete_post(post_id):
     db.session.commit()
     flash("Your post have been deleted success", "success")
     return redirect(url_for('posts.index'))
+
+
+@posts.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == "POST":
+        keyword = request.form.get('search')
+        posts = Post.query.filter(Post.title.contains(keyword)
+                                  | Post.body.contains(keyword)).all()
+        return render_template('post/search.html', posts=posts, keyword=keyword)
+    else:
+        return redirect(url_for('posts.index'))
