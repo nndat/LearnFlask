@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}<title>Tags</title>{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+  <h2 class="blog-post-title">All tags:</h2>
+{% for tag in tags %}
+    <li class="list-group-item">
+      <h3>{{ tag.name }}</h3>
+      {% for post in tag.posts %}
+      <li class="list-group-item">
+        <a href="{{ url_for('posts.detail', post_id=post.id) }}">{{ post.title }}</a>
+      </li>
+      {% endfor %}
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

@@ -29,13 +29,19 @@ def index():
     return render_template('post/index.html', posts=posts)
 
 
+@posts.route('/tags')
+def tags():
+    tags = Tag.query.all()
+    return render_template('post/tags.html', tags=tags)
+
+
 @posts.route("/create-post", methods=['GET', 'POST'])
 @login_required
 def create_post():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(
-            title=form.title.data,
+            title=form.title.data.capitalize(),
             body=form.body.data,
             user_id=current_user.id,
             tags=gettags(form.tags.data)
@@ -60,7 +66,7 @@ def update_post(post_id):
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
-        post.title = form.title.data
+        post.title = form.title.data.capitalize()
         post.body = form.body.data
         post.tags = gettags(form.tags.data)
         db.session.commit()
@@ -78,9 +84,13 @@ def update_post(post_id):
 @login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
+    tags = post.tags.all()
     if post.author != current_user:
         abort(403)
     db.session.delete(post)
+    for tag in tags:
+        if len(tag.posts) == 0:
+            db.session.delete(tag)
     db.session.commit()
     flash("Your post have been deleted success", "success")
     return redirect(url_for('posts.index'))
