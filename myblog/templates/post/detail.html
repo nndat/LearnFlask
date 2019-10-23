@@ -2,14 +2,20 @@
 {% block title %}<title>{{ post.title }}</title>{% endblock %}
 
 {% block content %}
-<div class="blog-main">
-  <h2 class="border-bottom blog-post-title">
+<div class="media-body">
+  <h2 class="border-bottom article-title">
     {{ post.title }}
   </h2>
-  <p class="blog-post-meta text-muted">
-    Create at: {{ post.last_modified.strftime('%c') }} by <a href="#">{{ post.author.username }}</a>
-  </p>
-  <p>
+  <div class="d-flex">
+    <p class="acticle-metadata text-muted">Create at: {{ post.last_modified.strftime('%Y-%m-%d') }} by <a href="#">{{ post.author.username }}</a></p>
+    {% if current_user == post.author %}
+    <div class="ml-auto">
+      <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+      <button class="btn btn-sm m-1 btn-danger" data-toggle="modal" data-target="#deletepost">Delete</button>
+    </div>
+    {% endif %}
+  </div>
+  <p class="article-content">
     {{ post.body }}
   </p>
   <p>
@@ -18,5 +24,21 @@
       <a href="#">{{ tag.name }},</a>
     {% endfor %}
   </p>
+</div>
+
+<div class="modal fade" id="deletepost" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header alert alert-danger">
+            <h3 class="modal-title">Delete this post?<h3>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
