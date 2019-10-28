@@ -114,7 +114,7 @@ def search():
 @login_required
 def comment(post_id):
     if request.method == 'POST':
-        content = request.form.get('content')
+        content = request.form.get('content').strip()
         comment = Comment(
             body=content,
             post_id=post_id,
