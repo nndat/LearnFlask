@@ -11,7 +11,7 @@ def slugtify(s):
 posts_tags = db.Table(
     "posts_tags",
     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
 )
 
 
@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(64), nullable=False)
     posts = db.relationship('Post', backref='author', lazy=True)
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     def __repr__(self):
         return f"<User: {self.username}>"
@@ -40,6 +41,8 @@ class Post(db.Model):
         backref="posts",
         lazy="dynamic"
     )
+
+    comments = db.relationship('Comment', backref="post", lazy=True)
 
     def generate_slug(self):
         self.slug = ''
@@ -70,3 +73,14 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f"<Tag {self.name}>"
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    create_at = db.Column(db.DateTime, default=datetime.now)
+    body = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<Comment body>'

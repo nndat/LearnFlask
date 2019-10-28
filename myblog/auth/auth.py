@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user
 
 from myblog.auth.form import LoginForm, RegisterForm
@@ -20,13 +20,14 @@ def login():
         return redirect(url_for('posts.index'))
     form = LoginForm()
     if form.validate_on_submit():
+        next = request.args.get('next')
         user = User.query.filter(User.username == form.username.data).first()
         password = form.password.data
         # if user and user.password == form.password.data:
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user, remember=form.remember.data)
             flash('Login success', 'success')
-            return redirect(url_for('posts.index'))
+            return redirect(next) if next else (url_for('posts.index'))
         else:
             flash("Username or Password don't correct. "
                   "Please try again", "danger")

@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ post.title }}</title>{% endblock %}
+{% block script %}
+<script>
+  function confirm_del_comment() {
+    return confirm('Delete this comment?');
+  }
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="media-body">
@@ -24,6 +31,35 @@
       <a href="#">{{ tag.name }},</a>
     {% endfor %}
   </p>
+  <div class="row">
+    <div class="col">
+    <form action="{{ url_for('posts.comment', post_id=post.id) }}" method="post">
+      <div class="form-group">
+      <textarea class="form-control" name="content"></textarea>
+    </div>
+      <button class="btn btn-primary" type=submit>Comment</button>
+    </form>
+  </div>
+</div>
+<br>
+  <ul class="list-group">
+    {% for comment in post.comments[::-1] %}
+      <div style="margin-bottom: 0; margin-top: 10px" class="d-flex">
+        <div>
+        <strong>{{ comment.author.username }}</strong> <small>at: {{ comment.create_at.strftime('%d-%m-%Y') }}</small>
+      </div>
+        {% if current_user == comment.author %}
+        <form class="form-inline" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="post">
+          <button class="btn" title="delete" type="submit" onclick="return confirm_del_comment()"><i class="fa fa-trash"></i></button>
+        </form>
+        {% endif %}
+      </div>
+      <li class="list-group-item">
+        {{ comment.body }}
+      </li>
+    {% endfor %}
+  </ul>
+</div>
 </div>
 
 <div class="modal fade" id="deletepost" role="dialog">

@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, redirect, flash,
                    url_for, request, abort)
 from flask_login import current_user, login_required
 
-from myblog.models import Post, Tag
+from myblog.models import Post, Tag, Comment
 from myblog.post.form import PostForm
 from myblog import db
 
@@ -87,6 +87,8 @@ def delete_post(post_id):
     tags = post.tags.all()
     if post.author != current_user:
         abort(403)
+    for comment in post.comments:
+        db.session.delete(comment)
     db.session.delete(post)
     for tag in tags:
         if len(tag.posts) == 0:
@@ -102,6 +104,33 @@ def search():
         keyword = request.form.get('search')
         posts = Post.query.filter(Post.title.contains(keyword)
                                   | Post.body.contains(keyword)).all()
-        return render_template('post/search.html', posts=posts, keyword=keyword)
+        return render_template('post/search.html',
+                               posts=posts, keyword=keyword)
     else:
         return redirect(url_for('posts.index'))
+
+
+@posts.route('/comment/<int:post_id>', methods=['POST', 'GET'])
+@login_required
+def comment(post_id):
+    if request.method == 'POST':
+        content = request.form.get('content')
+        comment = Comment(
+            body=content,
+            post_id=post_id,
+            user_id=current_user.id
+        )
+        db.session.add(comment)
+        db.session.commit()
+    return redirect(url_for('posts.detail', post_id=post_id))
+
+
+@posts.route('/delete_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    cm = Comment.query.get_or_404(comment_id)
+    if cm and cm.author == current_user:
+        post_id = cm.post_id
+        db.session.delete(cm)
+        db.session.commit()
+        return redirect(url_for('posts.detail', post_id=post_id))
